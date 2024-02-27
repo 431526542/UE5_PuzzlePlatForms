@@ -19,13 +19,20 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
+public:
 	UPROPERTY(EditAnywhere)
 	float fSpeed = 20.0;
 
 	UPROPERTY(EditAnywhere, meta = (MakeEditWidget=true))
 	FVector TargetLocation;
 
+	void AddActiveTrigger();
+	void RemoveActiveTrigger();
+
 private:
 	FVector GlobalTargetLocation;
 	FVector GlobalStartLocation;
+
+	UPROPERTY(EditAnywhere)
+	int32 ActiveTrigger = 1;
 };
