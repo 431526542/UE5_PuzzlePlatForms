@@ -2,18 +2,49 @@
 
 
 #include "PuzzlePlatformsGameInstance.h"
+#include "UObject/ConstructorHelpers.h"
+#include "Blueprint/UserWidget.h"
+
+#include "PlatformTrigger.h"
 
 UPuzzlePlatformsGameInstance::UPuzzlePlatformsGameInstance(
 	const FObjectInitializer& ObjectInitializer)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Gameinstance Constructor"));
+	ConstructorHelpers::FClassFinder<UUserWidget> MenuBPClass(TEXT
+	("/Game/Blueprint/Widget/WBP_MainMenu"));
+	if (MenuBPClass.Class != nullptr)
+	{
+		MenuClass = MenuBPClass.Class;
+	}
+
+	
 }
 
 void UPuzzlePlatformsGameInstance::Init()
 {
 	Super::Init();
 
-	UE_LOG(LogTemp, Warning, TEXT("Gameinstance Init"));
+	UE_LOG(LogTemp, Warning, TEXT("Find Class %s"), *MenuClass->GetName());
+}
+
+void UPuzzlePlatformsGameInstance::LoadMenu()
+{
+	if (MenuClass == nullptr) { return; }
+
+	UUserWidget* Menu = CreateWidget<UUserWidget>(this, MenuClass);
+	if (Menu == nullptr) { return; }
+
+	Menu->AddToViewport();
+
+	APlayerController* PlayerController = GetFirstLocalPlayerController();
+	if (PlayerController == nullptr) { return; }
+
+	FInputModeUIOnly InputModeData;
+	InputModeData.SetWidgetToFocus(Menu->TakeWidget());
+	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+
+	PlayerController->SetInputMode(InputModeData);
+	PlayerController->SetShowMouseCursor(true);
 }
 
 void UPuzzlePlatformsGameInstance::Host()
