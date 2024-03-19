@@ -4,6 +4,9 @@
 #include "PuzzlePlatformsGameInstance.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Blueprint/UserWidget.h"
+#include "MenuSystem/MainMenu.h"
+#include "MenuSystem/MenuWidget.h"
+#include "MenuSystem/InGameMenu.h"
 
 #include "PlatformTrigger.h"
 
@@ -15,6 +18,13 @@ UPuzzlePlatformsGameInstance::UPuzzlePlatformsGameInstance(
 	if (MenuBPClass.Class != nullptr)
 	{
 		MenuClass = MenuBPClass.Class;
+	}
+
+	ConstructorHelpers::FClassFinder<UUserWidget> InGameMenuBPClass(TEXT
+	("/Game/Blueprint/Widget/WBP_InGameMenu"));
+	if (InGameMenuBPClass.Class != nullptr)
+	{
+		InGameMenuClass = InGameMenuBPClass.Class;
 	}
 
 	
@@ -31,33 +41,51 @@ void UPuzzlePlatformsGameInstance::LoadMenu()
 {
 	if (MenuClass == nullptr) { return; }
 
-	UUserWidget* Menu = CreateWidget<UUserWidget>(this, MenuClass);
+	Menu = CreateWidget<UMainMenu>(this, MenuClass);
 	if (Menu == nullptr) { return; }
 
-	Menu->AddToViewport();
+	Menu->Setup();
+	Menu->SetMenuInterface(this);
+}
 
-	APlayerController* PlayerController = GetFirstLocalPlayerController();
-	if (PlayerController == nullptr) { return; }
+void UPuzzlePlatformsGameInstance::InGameLoadMenu()
+{
+	if (InGameMenuClass == nullptr) { return; }
 
-	FInputModeUIOnly InputModeData;
-	InputModeData.SetWidgetToFocus(Menu->TakeWidget());
-	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	UMenuWidget* GameInstanceMenu = CreateWidget<UMenuWidget>(this, InGameMenuClass);
+	if (GameInstanceMenu == nullptr) { return; }
 
-	PlayerController->SetInputMode(InputModeData);
-	PlayerController->SetShowMouseCursor(true);
+	GameInstanceMenu->Setup();
+	GameInstanceMenu->SetMenuInterface(this);
 }
 
 void UPuzzlePlatformsGameInstance::Host()
 {
-	GEngine->AddOnScreenDebugMessage(0, 2, FColor::Green, TEXT("Hosting"));
+	if (Menu != nullptr)
+	{
+		Menu->Teardown();
+	}
+
+	UEngine* Engine = GetEngine();
+	if (Engine == nullptr) { return; }
+	Engine->AddOnScreenDebugMessage(0, 2, FColor::Green, TEXT("Hosting"));
 	
-	GetWorld()->ServerTravel("/Game/ThirdPerson/Maps/ThirdPersonMap?listen");
+	UWorld* World = GetWorld();
+	if (World == nullptr) { return; }
+	World->ServerTravel("/Game/ThirdPerson/Maps/ThirdPersonMap?listen");
 
 }
 
 void UPuzzlePlatformsGameInstance::Join(const FString& Address)
 {
-	GEngine->AddOnScreenDebugMessage(0, 2, FColor::Green, Address);
+	if (Menu != nullptr)
+	{
+		Menu->Teardown();
+	}
+
+	UEngine* Engine = GetEngine();
+	if (Engine == nullptr) { return; }
+	Engine->AddOnScreenDebugMessage(0, 2, FColor::Green, Address);
 	
 	APlayerController* PlayerController = GetFirstLocalPlayerController();
 	if (PlayerController == nullptr)
