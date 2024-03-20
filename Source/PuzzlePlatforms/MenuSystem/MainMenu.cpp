@@ -15,12 +15,18 @@ bool UMainMenu::Initialize()
 
 	if (HostButton == nullptr) return false;
 	HostButton->OnClicked.AddDynamic(this, &UMainMenu::HostServer);
+
 	if (JoinButton == nullptr) return false;
 	JoinButton->OnClicked.AddDynamic(this, &UMainMenu::OpenJoinMenu);
+
 	if (BackButton == nullptr) return false;
 	BackButton->OnClicked.AddDynamic(this, &UMainMenu::OpenMainMenu);
+
 	if (ConfirmJoinButton == nullptr) return false;
-	BackButton->OnClicked.AddDynamic(this, &UMainMenu::JoinServer);
+	ConfirmJoinButton->OnClicked.AddDynamic(this, &UMainMenu::JoinServer);
+
+	if (QuitGameButton == nullptr) return false;
+	QuitGameButton->OnClicked.AddDynamic(this, &UMainMenu::QuitPressed);
 
 	return true;
 }
@@ -55,4 +61,15 @@ void UMainMenu::OpenMainMenu()
 	if (!ensure(MenuSwitcher != nullptr))return;
 	if (!ensure(MainMenu != nullptr))return;
 	MenuSwitcher->SetActiveWidget(MainMenu);
+}
+
+void UMainMenu::QuitPressed()
+{
+	UWorld* world = GetWorld();
+	if (!ensure(world != nullptr))return;
+
+	APlayerController* PlayerController = world->GetFirstPlayerController();
+	if (!ensure(PlayerController != nullptr))return;
+
+	PlayerController->ConsoleCommand("quit");
 }

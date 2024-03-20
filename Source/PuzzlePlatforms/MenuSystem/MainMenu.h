@@ -31,6 +31,9 @@ private:
 	UButton* JoinButton;
 
 	UPROPERTY(meta = (BindWidget))
+	UButton* QuitGameButton;
+
+	UPROPERTY(meta = (BindWidget))
 	UButton* BackButton;
 
 	UPROPERTY(meta = (BindWidget))
@@ -61,4 +64,7 @@ private:
 
 	UFUNCTION()
 	void OpenMainMenu();
+
+	UFUNCTION()
+	void QuitPressed();
 };
