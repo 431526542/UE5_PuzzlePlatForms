@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "OnlineSubsystem.h"
 #include "MenuSystem/MenuInterface.h"
 #include "PuzzlePlatformsGameInstance.generated.h"
 
@@ -25,7 +26,7 @@ public:
 
 public:
 	UFUNCTION(BlueprintCallable)
-	void LoadMenu();
+	void LoadMenuWidget();
 
 	UFUNCTION(BlueprintCallable)
 	void InGameLoadMenu();
@@ -44,4 +45,12 @@ private:
 
 	class UMainMenu* Menu;
 
+	IOnlineSessionPtr SessionInterface;
+	TSharedPtr<class FOnlineSessionSearch> SessionSearch;
+
+	void OnCreateSessionComplate(FName SesstionName, bool Success);
+	void OnDestroySesstionComplate(FName SesstionName, bool Success);
+	void OnFindSessionComplate(bool Success);
+
+	void CreateSession();
 };
