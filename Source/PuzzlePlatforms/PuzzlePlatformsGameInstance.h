@@ -34,7 +34,7 @@ public:
 	void InGameLoadMenu();
 
 	UFUNCTION(Exec)
-	void Host() override;
+	void Host(FString ServerName) override;
 
 	UFUNCTION(Exec)
 	void Join(uint32 Index) override;
@@ -58,5 +58,6 @@ private:
 	void OnJoinSessionComplate(FName SessionName,
 		EOnJoinSessionCompleteResult::Type Result);
 
+	FString DesiredServerName;
 	void CreateSession();
 };
